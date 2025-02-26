@@ -1,5 +1,16 @@
 ﻿using System;
 
+/* Варіант 23.
+Створити консольний застосунок, що моделює таку гру. На квадратному полі випадковим чином розміщено міни та аптечки. 
+Кількість мін та аптечок однакова, вона генерується випадковим чином так, що разом вони займають не більше половини поля. 
+Гравець має певну кількість життів. Натрапивши на міну, він втрачає одне життя, знайшовши аптечку відновлює одне життя. 
+Не можна мати від'ємну або більшу за задану кількість життів. Коли кількість життів дорівнює нулю гра завершується поразкою.
+Розмір поля та кількість життів задаються користувачем. Позначити міни та аптечки можна будь-якими різними символами, 
+необхідно показати їх на полі, коли гравець наткнеться на предмет. Залишок життів має відображатися на кожному кроці.
+На початку гри гравець знаходиться в лівому верхньому куті поля, для перемоги йому необхідно дістатися нижнього правого кута поля. 
+Гравець може переміщатися по горизонталі або по вертикалі. Гра завершується перемогою, якщо гравець дістався цілі та не втратив усі життя.
+*/
+
 namespace Project
 {
     class Game
@@ -65,7 +76,7 @@ namespace Project
                 {
                     x = rand.Next(Game.size);
                     y = rand.Next(Game.size);
-                } while ((field[x, y] != '.'));
+                } while (field[x, y] != '.');
 
                 field[x, y] = 'M';
             }
@@ -91,29 +102,24 @@ namespace Project
             {
                 for (int j = 0; j < Game.size; j++)
                 {
-                    if (field[i, j] == 'W')
-                    {
-                        Console.ForegroundColor = ConsoleColor.Green; Console.Write(field[i, j]);
-                        Console.ResetColor();
-                    }
-                    else if (field[i, j] == 'P')
-                    {
-                        Console.ForegroundColor = ConsoleColor.Blue; Console.Write(field[i, j]);
-                        Console.ResetColor();
-                    }
-                    else
-                    {
-                        Console.Write(field[i, j]);
-                    }
+                    char symbol = Field.field[i, j];
+
+                    if (symbol == 'P') Console.ForegroundColor = ConsoleColor.Blue;
+                    else if (symbol == 'M') Console.ForegroundColor = ConsoleColor.Red;
+                    else if (symbol == 'H') Console.ForegroundColor = ConsoleColor.Green;
+                    else Console.ResetColor();
+
+                    Console.Write($"{symbol} ");
+                    Console.ResetColor();
                 }
                 Console.WriteLine();
             }
         }
     }
 
-        class Player
+    class Player
     {
-        public static int x = 0, y = 0;
+        static int x = 0, y = 0;
         public static int currentHealth = Game.userHealth;
 
         public static void initializePlayerAndCell(char[,] field) // player initialization
@@ -122,6 +128,15 @@ namespace Project
             field[Game.size -1, Game.size - 1] = 'W';
         }
 
+        static void updatePlayerPosition(char character, int newX, int newY)
+        {
+            Field.field[x, y] = '.';
+            x = newX; y = newY;
+            Field.field[x, y] = character;
+            Console.Clear();
+            Field.printField();
+        }
+        
         public static void movePlayer() // player movement
         {
             int newX = 0, newY = 0;
@@ -143,11 +158,7 @@ namespace Project
 
                 if ((newX == Game.size - 1) && (newY == Game.size - 1)) // win condition
                 {
-                    Field.field[x, y] = '.';
-                    x = newX; y = newY;
-                    Field.field[x, y] = 'P';
-                    Console.Clear(); 
-                    Field.printField();
+                    updatePlayerPosition('P', newX, newY);
 
                     Console.ForegroundColor = ConsoleColor.Green; Console.WriteLine("You won");
                     Console.ResetColor(); // change and reset color
@@ -165,11 +176,7 @@ namespace Project
 
                     if (currentHealth == 0)
                     {
-                        Field.field[x, y] = '.';
-                        x = newX; y = newY;
-                        Field.field[x, y] = 'P';
-                        Console.Clear();
-                        Field.printField();
+                        updatePlayerPosition('P', newX, newY);
 
                         Console.ForegroundColor = ConsoleColor.Red; Console.WriteLine("Game Over!");
                         Console.ResetColor(); // change and reset color
